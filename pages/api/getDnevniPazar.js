@@ -12,10 +12,18 @@ const config = {
 };
 
 export default async function handler(req, res) {
+    
+    const { date } = req.query; // Get the date parameter from the query
+
+    // Validate the date parameter if necessary
+    if (!date) {
+        return res.status(400).json({ error: 'Date parameter is required' });
+    }
+
     try {
         await sql.connect(config);
-        const result1 = await sql.query`EXEC iw_DnevniPazar 0`;
-        const result2 = await sql.query`EXEC iw_DnevniPazar 1`;
+        const result1 = await sql.query`EXEC iw_DnevniPazarZaDatum @ZaDatum = ${date}, @OnlySum = 0`;
+        const result2 = await sql.query`EXEC iw_DnevniPazarZaDatum @ZaDatum = ${date}, @OnlySum = 1`;
         res.status(200).json({ result1: result1.recordset, result2: result2.recordset });
     } catch (err) {
         console.error(err);
